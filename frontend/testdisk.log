@@ -1,0 +1,44 @@
+
+
+Fri Feb  7 23:44:36 2025
+Command line: TestDisk
+
+TestDisk 7.1, Data Recovery Utility, July 2019
+Christophe GRENIER <grenier@cgsecurity.org>
+https://www.cgsecurity.org
+OS: Linux, kernel 5.15.167.4-microsoft-standard-WSL2 (#1 SMP Tue Nov 5 00:21:55 UTC 2024) x86_64
+Compiler: GCC 11.2
+ext2fs lib: 1.46.5, ntfs lib: libntfs-3g, reiserfs lib: none, ewf lib: none, curses lib: ncurses 6.3
+User is not root!
+Hard disk list
+
+
+TestDisk exited normally.
+Using locale 'C.UTF-8'.
+
+
+Fri Feb  7 23:44:36 2025
+Command line: TestDisk /debug
+
+TestDisk 7.1, Data Recovery Utility, July 2019
+Christophe GRENIER <grenier@cgsecurity.org>
+https://www.cgsecurity.org
+OS: Linux, kernel 5.15.167.4-microsoft-standard-WSL2 (#1 SMP Tue Nov 5 00:21:55 UTC 2024) x86_64
+Compiler: GCC 11.2
+ext2fs lib: 1.46.5, ntfs lib: libntfs-3g, reiserfs lib: none, ewf lib: none, curses lib: ncurses 6.3
+Warning: can't get size for Disk /dev/mapper/control - 0 B - 0 sectors, sector size=512
+Warning: can't get size for Disk /dev/loop0 - 0 B - 0 sectors, sector size=512
+Warning: can't get size for Disk /dev/loop1 - 0 B - 0 sectors, sector size=512
+Warning: can't get size for Disk /dev/loop2 - 0 B - 0 sectors, sector size=512
+Warning: can't get size for Disk /dev/loop3 - 0 B - 0 sectors, sector size=512
+Warning: can't get size for Disk /dev/loop4 - 0 B - 0 sectors, sector size=512
+Warning: can't get size for Disk /dev/loop5 - 0 B - 0 sectors, sector size=512
+Warning: can't get size for Disk /dev/loop6 - 0 B - 0 sectors, sector size=512
+Warning: can't get size for Disk /dev/loop7 - 0 B - 0 sectors, sector size=512
+Hard disk list
+Disk /dev/sda - 407 MB / 388 MiB - CHS 49 255 63 (RO), sector size=512 - Msft Virtual Disk, FW:1.0
+Disk /dev/sdb - 8589 MB / 8192 MiB - CHS 1044 255 63, sector size=512 - Msft Virtual Disk, FW:1.0
+Disk /dev/sdc - 1099 GB / 1024 GiB - CHS 133674 255 63, sector size=512 - Msft Virtual Disk, FW:1.0
+
+
+TestDisk exited normally.
