@@ -2,6 +2,14 @@ import { useRouter } from 'next/router'
 
 const translations = {
   pt: {
+    nav: {
+      recipes: 'Receitas',
+      community: 'Comunidade',
+      health: 'Saúde',
+      about: 'Sobre',
+      login: 'Entrar',
+      signup: 'Cadastre-se',
+    },
     hero: {
       title: 'O Lado Maneiro do Mundo Vegano',
       subtitle: 'Descubra receitas deliciosas, conecte-se com a comunidade e aprenda sobre um estilo de vida sustentável',
@@ -81,8 +89,32 @@ const translations = {
         submit: 'Enviar Mensagem',
       },
     },
+    footer: {
+      company: 'Empresa',
+      about: 'Sobre',
+      careers: 'Carreiras',
+      press: 'Imprensa',
+      resources: 'Recursos',
+      blog: 'Blog',
+      guides: 'Guias',
+      recipes: 'Receitas',
+      legal: 'Legal',
+      privacy: 'Privacidade',
+      terms: 'Termos',
+      cookies: 'Cookies',
+      tagline: 'Transformando o mundo, uma refeição vegana por vez.',
+      rights: 'Todos os direitos reservados.',
+    },
   },
   en: {
+    nav: {
+      recipes: 'Recipes',
+      community: 'Community',
+      health: 'Health',
+      about: 'About',
+      login: 'Login',
+      signup: 'Sign Up',
+    },
     hero: {
       title: 'The Cool Side of the Vegan World',
       subtitle: 'Discover delicious recipes, connect with the community, and learn about a sustainable lifestyle',
@@ -161,6 +193,22 @@ const translations = {
         message: 'Message',
         submit: 'Send Message',
       },
+    },
+    footer: {
+      company: 'Company',
+      about: 'About',
+      careers: 'Careers',
+      press: 'Press',
+      resources: 'Resources',
+      blog: 'Blog',
+      guides: 'Guides',
+      recipes: 'Recipes',
+      legal: 'Legal',
+      privacy: 'Privacy',
+      terms: 'Terms',
+      cookies: 'Cookies',
+      tagline: 'Transforming the world, one vegan meal at a time.',
+      rights: 'All rights reserved.',
     },
   },
 }

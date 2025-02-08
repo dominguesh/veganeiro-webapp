@@ -1,78 +1,132 @@
-import Link from 'next/link'
 import { useRouter } from 'next/router'
+import Link from 'next/link'
 import { useTranslation } from '@/utils/i18n/translations'
+import { Github, Twitter, Instagram } from 'lucide-react'
 
 export default function Footer() {
   const router = useRouter()
   const { t } = useTranslation(router.locale)
 
+  const footerLinks = {
+    company: [
+      { name: t('footer.about'), href: '/about' },
+      { name: t('footer.careers'), href: '/careers' },
+      { name: t('footer.press'), href: '/press' },
+    ],
+    resources: [
+      { name: t('footer.blog'), href: '/blog' },
+      { name: t('footer.guides'), href: '/guides' },
+      { name: t('footer.recipes'), href: '/recipes' },
+    ],
+    legal: [
+      { name: t('footer.privacy'), href: '/privacy' },
+      { name: t('footer.terms'), href: '/terms' },
+      { name: t('footer.cookies'), href: '/cookies' },
+    ],
+  }
+
+  const socialLinks = [
+    {
+      name: 'GitHub',
+      href: 'https://github.com/veganeiro',
+      icon: Github,
+    },
+    {
+      name: 'Twitter',
+      href: 'https://twitter.com/veganeiro',
+      icon: Twitter,
+    },
+    {
+      name: 'Instagram',
+      href: 'https://instagram.com/veganeiro',
+      icon: Instagram,
+    },
+  ]
+
   return (
-    <footer className="bg-background border-t py-12 mt-auto">
-      <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {/* About Column */}
+    <footer className="border-t bg-background">
+      <div className="container mx-auto px-4 py-12">
+        <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
           <div>
-            <h3 className="font-bold text-lg mb-4">Veganeiro</h3>
-            <p className="text-muted-foreground text-sm">
-              {t('footer.about')}
+            <Link href="/" className="flex items-center space-x-2">
+              <span className="text-2xl font-bold text-primary">Veganeiro</span>
+            </Link>
+            <p className="mt-4 text-sm text-muted-foreground">
+              {t('footer.tagline')}
             </p>
           </div>
 
-          {/* Quick Links */}
           <div>
-            <h3 className="font-bold text-lg mb-4">{t('footer.quickLinks')}</h3>
-            <ul className="space-y-2">
-              <li>
-                <Link href="#features" className="text-muted-foreground hover:text-primary transition-colors">
-                  {t('nav.features')}
-                </Link>
-              </li>
-              <li>
-                <Link href="#about" className="text-muted-foreground hover:text-primary transition-colors">
-                  {t('nav.about')}
-                </Link>
-              </li>
-              <li>
-                <Link href="#future" className="text-muted-foreground hover:text-primary transition-colors">
-                  {t('nav.future')}
-                </Link>
-              </li>
+            <h3 className="text-sm font-semibold">{t('footer.company')}</h3>
+            <ul className="mt-4 space-y-3">
+              {footerLinks.company.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-muted-foreground hover:text-primary"
+                  >
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
-          {/* Legal */}
           <div>
-            <h3 className="font-bold text-lg mb-4">{t('footer.legal')}</h3>
-            <ul className="space-y-2">
-              <li>
-                <Link href="/privacy" className="text-muted-foreground hover:text-primary transition-colors">
-                  {t('footer.privacy')}
-                </Link>
-              </li>
-              <li>
-                <Link href="/terms" className="text-muted-foreground hover:text-primary transition-colors">
-                  {t('footer.terms')}
-                </Link>
-              </li>
+            <h3 className="text-sm font-semibold">{t('footer.resources')}</h3>
+            <ul className="mt-4 space-y-3">
+              {footerLinks.resources.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-muted-foreground hover:text-primary"
+                  >
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
-          {/* Contact */}
           <div>
-            <h3 className="font-bold text-lg mb-4">{t('footer.contact')}</h3>
-            <ul className="space-y-2">
-              <li className="text-muted-foreground">
-                contato@veganeiro.com
-              </li>
-              <li className="text-muted-foreground">
-                São Paulo, Brasil
-              </li>
+            <h3 className="text-sm font-semibold">{t('footer.legal')}</h3>
+            <ul className="mt-4 space-y-3">
+              {footerLinks.legal.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-muted-foreground hover:text-primary"
+                  >
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
         </div>
 
-        <div className="border-t mt-8 pt-8 text-center text-muted-foreground text-sm">
-          <p>&copy; {new Date().getFullYear()} Veganeiro. {t('footer.rights')}</p>
+        <div className="mt-12 flex flex-col items-center justify-between border-t pt-8 md:flex-row">
+          <p className="text-sm text-muted-foreground">
+            &copy; {new Date().getFullYear()} Veganeiro. {t('footer.rights')}
+          </p>
+
+          <div className="mt-4 flex space-x-6 md:mt-0">
+            {socialLinks.map((item) => {
+              const Icon = item.icon
+              return (
+                <a
+                  key={item.name}
+                  href={item.href}
+                  className="text-muted-foreground hover:text-primary"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <span className="sr-only">{item.name}</span>
+                  <Icon className="h-5 w-5" />
+                </a>
+              )
+            })}
+          </div>
         </div>
       </div>
     </footer>
