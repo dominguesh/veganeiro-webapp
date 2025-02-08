@@ -1,7 +1,6 @@
 import { ReactNode } from 'react'
-import Navigation from './Navigation'
+import Header from './Header'
 import Footer from './Footer'
-import CookieConsent from '@/components/shared/CookieConsent'
 
 interface LayoutProps {
   children: ReactNode
@@ -9,11 +8,10 @@ interface LayoutProps {
 
 export default function Layout({ children }: LayoutProps) {
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navigation />
-      {children}
+    <div className="flex min-h-screen flex-col">
+      <Header />
+      <main className="flex-1">{children}</main>
       <Footer />
-      <CookieConsent />
     </div>
   )
 }
