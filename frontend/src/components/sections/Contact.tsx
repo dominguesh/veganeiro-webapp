@@ -1,4 +1,4 @@
-import { useRouter } from 'next/router'
+ import { useRouter } from 'next/router'
 import { useTranslation } from '@/utils/i18n/translations'
 import { Mail, MessageSquare, MapPin } from 'lucide-react'
 
