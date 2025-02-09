@@ -26,6 +26,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             ${error ? 'border-destructive' : 'border-input'}
             ${className}
           `}
+          autoComplete={props.type === 'password' ? 'current-password' : 'on'}
           {...props}
         />
         {error && (
