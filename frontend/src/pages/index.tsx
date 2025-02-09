@@ -18,9 +18,9 @@ export default function Home() {
         <title>Veganeiro - O Lado Maneiro do Mundo Vegano</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
-      <main className="min-h-screen">
+      <main className="flex flex-col">
         {/* Hero Section */}
-        <section className="relative h-screen flex items-center justify-center overflow-hidden">
+        <section className="relative min-h-[calc(100vh-4rem)] flex items-center justify-center overflow-hidden">
           <div className="absolute inset-0 z-0">
             <Image
               src="/images/banner-1.jpg"
@@ -66,7 +66,7 @@ export default function Home() {
         </section>
 
         {/* Contact Section */}
-        <section className="py-20 bg-background" id="contact">
+        <section className="py-20 bg-background mb-0" id="contact">
           <Contact />
         </section>
       </main>

@@ -3,12 +3,15 @@ import { useRouter } from 'next/router'
 const translations = {
   pt: {
     nav: {
+      features: 'Recursos',
+      about: 'Sobre',
+      future: 'Futuro',
+      contact: 'Contato',
+      login: 'Entrar',
+      signup: 'Cadastre-se',
       recipes: 'Receitas',
       community: 'Comunidade',
       health: 'Saúde',
-      about: 'Sobre',
-      login: 'Entrar',
-      signup: 'Cadastre-se',
     },
     hero: {
       title: 'O Lado Maneiro do Mundo Vegano',
@@ -108,12 +111,15 @@ const translations = {
   },
   en: {
     nav: {
+      features: 'Features',
+      about: 'About',
+      future: 'Future',
+      contact: 'Contact',
+      login: 'Login',
+      signup: 'Sign Up',
       recipes: 'Recipes',
       community: 'Community',
       health: 'Health',
-      about: 'About',
-      login: 'Login',
-      signup: 'Sign Up',
     },
     hero: {
       title: 'The Cool Side of the Vegan World',

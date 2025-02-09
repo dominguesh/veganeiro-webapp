@@ -4,13 +4,17 @@ import { useTranslation } from '@/utils/i18n/translations'
 import Navigation from './Navigation'
 import { useTheme } from 'next-themes'
 
-export default function Header() {
+interface HeaderProps {
+  className?: string;
+}
+
+export default function Header({ className = '' }: HeaderProps) {
   const router = useRouter()
   const { t } = useTranslation(router.locale)
   const { theme, setTheme } = useTheme()
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className={`w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 ${className}`}>
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           <Link href="/" className="flex items-center space-x-2">

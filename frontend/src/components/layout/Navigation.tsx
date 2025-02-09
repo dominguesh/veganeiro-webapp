@@ -1,5 +1,4 @@
 import { useRouter } from 'next/router'
-import Link from 'next/link'
 import { useTranslation } from '@/utils/i18n/translations'
 
 export default function Navigation() {
@@ -8,37 +7,42 @@ export default function Navigation() {
 
   const navigation = [
     {
-      name: t('nav.recipes'),
-      href: '/recipes',
-    },
-    {
-      name: t('nav.community'),
-      href: '/community',
-    },
-    {
-      name: t('nav.health'),
-      href: '/health',
+      name: t('nav.features'),
+      href: '#features',
     },
     {
       name: t('nav.about'),
-      href: '/about',
+      href: '#about',
+    },
+    {
+      name: t('nav.future'),
+      href: '#future',
+    },
+    {
+      name: t('nav.contact'),
+      href: '#contact',
     },
   ]
+
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault()
+    const element = document.querySelector(href)
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' })
+    }
+  }
 
   return (
     <nav className="hidden md:flex items-center space-x-8">
       {navigation.map((item) => (
-        <Link
+        <a
           key={item.href}
           href={item.href}
-          className={`text-sm font-medium transition-colors hover:text-primary ${
-            router.pathname === item.href
-              ? 'text-primary'
-              : 'text-foreground/60'
-          }`}
+          onClick={(e) => handleClick(e, item.href)}
+          className="text-sm font-medium transition-colors hover:text-primary text-foreground/60"
         >
           {item.name}
-        </Link>
+        </a>
       ))}
     </nav>
   )

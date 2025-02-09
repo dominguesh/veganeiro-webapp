@@ -3,7 +3,11 @@ import Link from 'next/link'
 import { useTranslation } from '@/utils/i18n/translations'
 import { Github, Twitter, Instagram } from 'lucide-react'
 
-export default function Footer() {
+interface FooterProps {
+  className?: string;
+}
+
+export default function Footer({ className = '' }: FooterProps) {
   const router = useRouter()
   const { t } = useTranslation(router.locale)
 
@@ -14,9 +18,11 @@ export default function Footer() {
       { name: t('footer.press'), href: '/press' },
     ],
     resources: [
+      { name: t('nav.recipes'), href: '/recipes' },
+      { name: t('nav.community'), href: '/community' },
+      { name: t('nav.health'), href: '/health' },
       { name: t('footer.blog'), href: '/blog' },
       { name: t('footer.guides'), href: '/guides' },
-      { name: t('footer.recipes'), href: '/recipes' },
     ],
     legal: [
       { name: t('footer.privacy'), href: '/privacy' },
@@ -44,8 +50,8 @@ export default function Footer() {
   ]
 
   return (
-    <footer className="border-t bg-background">
-      <div className="container mx-auto px-4 py-12">
+    <footer className={`w-full border-t bg-background py-12 ${className}`}>
+      <div className="container mx-auto px-4">
         <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
           <div>
             <Link href="/" className="flex items-center space-x-2">
