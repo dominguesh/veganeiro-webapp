@@ -31,6 +31,7 @@ export default function LoginPage() {
               label="Email"
               required
               disabled={isLoading}
+              autoComplete="email"
             />
             <Input
               id="password"
@@ -39,6 +40,7 @@ export default function LoginPage() {
               label="Password"
               required
               disabled={isLoading}
+              autoComplete="current-password"
             />
           </div>
 

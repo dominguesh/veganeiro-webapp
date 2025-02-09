@@ -39,6 +39,7 @@ export default function ForgotPasswordPage() {
                 label="Email"
                 required
                 disabled={isLoading}
+                autoComplete="email"
               />
             </div>
 
