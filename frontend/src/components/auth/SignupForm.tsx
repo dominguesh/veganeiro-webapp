@@ -25,6 +25,7 @@ export default function SignupForm() {
           label="Name"
           required
           disabled={isLoading}
+          autoComplete="name"
         />
         <Input
           id="email"
@@ -33,6 +34,7 @@ export default function SignupForm() {
           label="Email"
           required
           disabled={isLoading}
+          autoComplete="email"
         />
         <Input
           id="password"
@@ -41,6 +43,7 @@ export default function SignupForm() {
           label="Password"
           required
           disabled={isLoading}
+          autoComplete="new-password"
         />
       </div>
 
