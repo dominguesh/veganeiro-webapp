@@ -1,0 +1,60 @@
+name: Auto Label Assignment
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  assign-label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Add PR Labels
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const baseBranch = pr.base.ref;
+            const headBranch = pr.head.ref;
+            
+            // Remove existing theme labels
+            const currentLabels = pr.labels.map(label => label.name);
+            const themeLabels = ['🌍 earth', '🌕 moon', '🔴 mars', '☄️ asteroid', '⚡ comet', '🚀 rocket'];
+            for (const label of currentLabels) {
+              if (themeLabels.includes(label)) {
+                await github.rest.issues.removeLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: pr.number,
+                  name: label
+                });
+              }
+            }
+            
+            // Determine label based on branch names
+            let label = '';
+            if (baseBranch === 'main') {
+              label = '🌍 earth';
+            } else if (baseBranch === 'staging') {
+              label = '🌕 moon';
+            } else if (baseBranch === 'develop') {
+              label = '🔴 mars';
+            }
+            
+            if (headBranch.startsWith('feature/')) {
+              label = '☄️ asteroid';
+            } else if (headBranch.startsWith('hotfix/')) {
+              label = '⚡ comet';
+            } else if (headBranch.startsWith('release/')) {
+              label = '🚀 rocket';
+            }
+            
+            if (label) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                labels: [label]
+              });
+            }
