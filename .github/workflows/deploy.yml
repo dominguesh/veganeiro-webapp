@@ -1,0 +1,33 @@
+name: Deploy to Oracle Cloud
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H <your-instance-public-ip> >> ~/.ssh/known_hosts
+
+      - name: Deploy to Oracle Cloud
+        run: |
+          ssh -i ~/.ssh/id_rsa ubuntu@144.24.0.6 << 'EOF'
+            cd ~/veganeiro-webapp || git clone https://github.com/dominguesh/veganeiro-webapp.git
+            cd ~/veganeiro-webapp
+            git pull origin main
+            docker build -t veganeiro-webapp .
+            docker stop veganeiro-webapp || true
+            docker rm veganeiro-webapp || true
+            docker run -d -p 80:3000 --name veganeiro-webapp veganeiro-webapp
+          EOF
