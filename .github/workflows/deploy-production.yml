@@ -9,8 +9,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: production
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -34,24 +32,21 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.PRODUCTION_SSH_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H "${{ secrets.PRODUCTION_HOST }}" > ~/.ssh/known_hosts
+          ssh-keyscan -H "${{ secrets.PRODUCTION_HOST }}" >> ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
 
       - name: Deploy to Production
         env:
-          HOST: "${{ secrets.PRODUCTION_HOST }}"
-          USERNAME: "${{ secrets.PRODUCTION_USERNAME }}"
+          SSH_HOST: ${{ secrets.PRODUCTION_HOST }}
+          SSH_USER: ${{ secrets.PRODUCTION_USERNAME }}
         run: |
-          # Create deployment script
-          echo '#!/bin/bash
-          cd /var/www/veganeiro
-          git pull origin earth
-          docker-compose -f docker-compose.yml down
-          docker-compose -f docker-compose.yml up -d --build
-          docker system prune -f' > deploy.sh
-          
-          # Copy deployment script and execute
-          scp -i ~/.ssh/deploy_key deploy.sh "${{ secrets.PRODUCTION_USERNAME }}@${{ secrets.PRODUCTION_HOST }}:~/deploy.sh"
-          ssh -i ~/.ssh/deploy_key "${{ secrets.PRODUCTION_USERNAME }}@${{ secrets.PRODUCTION_HOST }}" "chmod +x ~/deploy.sh && ~/deploy.sh"
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new ${SSH_USER}@${SSH_HOST} '
+            cd /var/www/veganeiro
+            git pull origin earth
+            docker-compose -f docker-compose.yml down
+            docker-compose -f docker-compose.yml up -d --build
+            docker system prune -f
+          '
 
       - name: Cleanup
         if: always()
