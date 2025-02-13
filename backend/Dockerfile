@@ -1,14 +1,14 @@
 # Use Node.js LTS
 FROM node:18-alpine
 
-# Install necessary build tools for Prisma
-RUN apk add --no-cache python3 make g++
+# Install necessary build tools for Prisma and OpenSSL
+RUN apk add --no-cache python3 make g++ openssl
 
 # Set working directory
 WORKDIR /app
 
 # Install dependencies first (caching)
-COPY package*.json ./
+COPY package*.json tsconfig.json ./
 RUN npm install
 
 # Copy Prisma schema
@@ -18,10 +18,10 @@ COPY prisma ./prisma/
 RUN npx prisma generate
 
 # Copy source code
-COPY . .
+COPY src ./src/
 
 # Build TypeScript
-RUN npm run build || true
+RUN npm run build
 
 # Expose port
 EXPOSE 5000
