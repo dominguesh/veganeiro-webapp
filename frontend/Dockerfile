@@ -6,18 +6,17 @@ WORKDIR /app
 
 # Install dependencies first (caching)
 COPY package*.json ./
-COPY yarn.lock ./
-RUN yarn install --frozen-lockfile
+RUN npm install
 
 # Copy source code
 COPY . .
 
 # Build the Next.js application
 ENV NEXT_TELEMETRY_DISABLED=1
-RUN yarn build
+RUN npm run build
 
 # Expose port
 EXPOSE 3000
 
 # Start the application
-CMD ["yarn", "start"]
+CMD ["npm", "start"]
