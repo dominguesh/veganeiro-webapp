@@ -29,10 +29,21 @@ jobs:
 
       - name: Setup SSH
         run: |
+          if [ -z "${{ secrets.PRODUCTION_SSH_KEY }}" ]; then
+            echo "Error: PRODUCTION_SSH_KEY secret is not set"
+            exit 1
+          fi
+          if [ -z "${{ secrets.PRODUCTION_HOST }}" ]; then
+            echo "Error: PRODUCTION_HOST secret is not set"
+            exit 1
+          fi
           mkdir -p ~/.ssh
           echo "${{ secrets.PRODUCTION_SSH_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H "${{ secrets.PRODUCTION_HOST }}" >> ~/.ssh/known_hosts
+          ssh-keyscan -H "${{ secrets.PRODUCTION_HOST }}" 2>/dev/null > ~/.ssh/known_hosts || {
+            echo "Error: Failed to scan host key for ${{ secrets.PRODUCTION_HOST }}"
+            exit 1
+          }
           chmod 600 ~/.ssh/known_hosts
 
       - name: Deploy to Production
