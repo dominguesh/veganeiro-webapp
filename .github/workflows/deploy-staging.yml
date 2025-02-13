@@ -40,25 +40,24 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.STAGING_SSH_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H ${{ secrets.STAGING_HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H "${{ secrets.STAGING_HOST }}" > ~/.ssh/known_hosts
 
       - name: Deploy to Staging
         env:
-          SSH_KEY: ${{ secrets.STAGING_SSH_KEY }}
-          HOST: ${{ secrets.STAGING_HOST }}
-          USERNAME: ${{ secrets.STAGING_USERNAME }}
+          HOST: "${{ secrets.STAGING_HOST }}"
+          USERNAME: "${{ secrets.STAGING_USERNAME }}"
         run: |
           # Create deployment script
-          echo "#!/bin/bash
+          echo '#!/bin/bash
           cd /var/www/veganeiro-staging
           git pull origin moon
           docker-compose -f docker-compose.yml down
           docker-compose -f docker-compose.yml up -d --build
-          docker system prune -f" > deploy.sh
+          docker system prune -f' > deploy.sh
           
           # Copy deployment script and execute
-          scp -i ~/.ssh/deploy_key deploy.sh ${{ secrets.STAGING_USERNAME }}@${{ secrets.STAGING_HOST }}:~/deploy.sh
-          ssh -i ~/.ssh/deploy_key ${{ secrets.STAGING_USERNAME }}@${{ secrets.STAGING_HOST }} "chmod +x ~/deploy.sh && ~/deploy.sh"
+          scp -i ~/.ssh/deploy_key deploy.sh "${{ secrets.STAGING_USERNAME }}@${{ secrets.STAGING_HOST }}:~/deploy.sh"
+          ssh -i ~/.ssh/deploy_key "${{ secrets.STAGING_USERNAME }}@${{ secrets.STAGING_HOST }}" "chmod +x ~/deploy.sh && ~/deploy.sh"
 
       - name: Cleanup
         if: always()
@@ -68,4 +67,3 @@ jobs:
         if: failure()
         run: |
           echo "Deployment to staging failed!"
-          # Add notification logic here (e.g., Slack, Email)
