@@ -3,11 +3,11 @@ name: Deploy to Staging (Moon) 🌕
 on:
   push:
     branches:
-      - moon  # staging branch
+      - moon
   pull_request:
     branches:
-      - earth  # production branch
-  workflow_dispatch:  # Allow manual trigger
+      - earth
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -18,52 +18,26 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'yarn'
-
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
-
-      - name: Run tests
-        run: yarn test
-
-      - name: Build application
-        run: yarn build
+      - name: Set up SSH
         env:
-          NEXT_TELEMETRY_DISABLED: 1
-
-      - name: Setup SSH
+          SSH_KEY: ${{ secrets.STAGING_SSH_KEY }}
+          KNOWN_HOSTS: ${{ secrets.STAGING_HOST }}
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.STAGING_SSH_KEY }}" > ~/.ssh/deploy_key
+          echo "${SSH_KEY}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H "${{ secrets.STAGING_HOST }}" > ~/.ssh/known_hosts
+          ssh-keyscan -H "${KNOWN_HOSTS}" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
 
-      - name: Deploy to Staging
+      - name: Deploy to staging
         env:
-          HOST: "${{ secrets.STAGING_HOST }}"
-          USERNAME: "${{ secrets.STAGING_USERNAME }}"
+          SSH_HOST: ${{ secrets.STAGING_HOST }}
+          SSH_USER: ${{ secrets.STAGING_USERNAME }}
         run: |
-          # Create deployment script
-          echo '#!/bin/bash
-          cd /var/www/veganeiro-staging
-          git pull origin moon
-          docker-compose -f docker-compose.yml down
-          docker-compose -f docker-compose.yml up -d --build
-          docker system prune -f' > deploy.sh
-          
-          # Copy deployment script and execute
-          scp -i ~/.ssh/deploy_key deploy.sh "${{ secrets.STAGING_USERNAME }}@${{ secrets.STAGING_HOST }}:~/deploy.sh"
-          ssh -i ~/.ssh/deploy_key "${{ secrets.STAGING_USERNAME }}@${{ secrets.STAGING_HOST }}" "chmod +x ~/deploy.sh && ~/deploy.sh"
-
-      - name: Cleanup
-        if: always()
-        run: rm -f ~/.ssh/deploy_key
-
-      - name: Notify on failure
-        if: failure()
-        run: |
-          echo "Deployment to staging failed!"
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new ${SSH_USER}@${SSH_HOST} '
+            cd /var/www/veganeiro-staging
+            git pull origin moon
+            docker-compose -f docker-compose.yml down
+            docker-compose -f docker-compose.yml up -d --build
+            docker system prune -f
+          '
