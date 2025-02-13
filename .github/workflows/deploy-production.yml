@@ -1,0 +1,59 @@
+name: Deploy to Production (Earth) 🌍
+
+on:
+  push:
+    branches:
+      - earth  # production branch
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build application
+        run: yarn build
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.PRODUCTION_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H ${{ secrets.PRODUCTION_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to Production
+        env:
+          SSH_KEY: ${{ secrets.PRODUCTION_SSH_KEY }}
+          HOST: ${{ secrets.PRODUCTION_HOST }}
+          USERNAME: ${{ secrets.PRODUCTION_USERNAME }}
+        run: |
+          # Create deployment script
+          echo "#!/bin/bash
+          cd /var/www/veganeiro
+          git pull origin earth
+          docker-compose -f docker-compose.yml down
+          docker-compose -f docker-compose.yml up -d --build
+          docker system prune -f" > deploy.sh
+          
+          # Copy deployment script and execute
+          scp -i ~/.ssh/deploy_key deploy.sh ${{ secrets.PRODUCTION_USERNAME }}@${{ secrets.PRODUCTION_HOST }}:~/deploy.sh
+          ssh -i ~/.ssh/deploy_key ${{ secrets.PRODUCTION_USERNAME }}@${{ secrets.PRODUCTION_HOST }} "chmod +x ~/deploy.sh && ~/deploy.sh"
+
+      - name: Cleanup
+        if: always()
+        run: rm -f ~/.ssh/deploy_key
