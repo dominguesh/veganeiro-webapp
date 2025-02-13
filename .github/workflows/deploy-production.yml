@@ -9,49 +9,45 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: production
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'yarn'
-
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
-
-      - name: Build application
-        run: yarn build
-        env:
-          NEXT_TELEMETRY_DISABLED: 1
-
       - name: Setup SSH
         run: |
+          if [ -z "${{ secrets.PRODUCTION_SSH_KEY }}" ]; then
+            echo "Error: PRODUCTION_SSH_KEY secret is not set"
+            exit 1
+          fi
+          if [ -z "${{ secrets.PRODUCTION_HOST }}" ]; then
+            echo "Error: PRODUCTION_HOST secret is not set"
+            exit 1
+          fi
           mkdir -p ~/.ssh
           echo "${{ secrets.PRODUCTION_SSH_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H "${{ secrets.PRODUCTION_HOST }}" > ~/.ssh/known_hosts
+          ssh-keyscan -H "${{ secrets.PRODUCTION_HOST }}" 2>/dev/null > ~/.ssh/known_hosts || {
+            echo "Error: Failed to scan host key for ${{ secrets.PRODUCTION_HOST }}"
+            exit 1
+          }
+          chmod 600 ~/.ssh/known_hosts
 
       - name: Deploy to Production
         env:
-          HOST: "${{ secrets.PRODUCTION_HOST }}"
-          USERNAME: "${{ secrets.PRODUCTION_USERNAME }}"
+          SSH_HOST: ${{ secrets.PRODUCTION_HOST }}
+          SSH_USER: ${{ secrets.PRODUCTION_USERNAME }}
         run: |
-          # Create deployment script
-          echo '#!/bin/bash
-          cd /var/www/veganeiro
-          git pull origin earth
-          docker-compose -f docker-compose.yml down
-          docker-compose -f docker-compose.yml up -d --build
-          docker system prune -f' > deploy.sh
-          
-          # Copy deployment script and execute
-          scp -i ~/.ssh/deploy_key deploy.sh "${{ secrets.PRODUCTION_USERNAME }}@${{ secrets.PRODUCTION_HOST }}:~/deploy.sh"
-          ssh -i ~/.ssh/deploy_key "${{ secrets.PRODUCTION_USERNAME }}@${{ secrets.PRODUCTION_HOST }}" "chmod +x ~/deploy.sh && ~/deploy.sh"
+          # Copy env file and deploy script
+          scp -i ~/.ssh/deploy_key .env.production ${SSH_USER}@${SSH_HOST}:/var/www/veganeiro/.env
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new ${SSH_USER}@${SSH_HOST} '
+            cd /var/www/veganeiro
+            git pull origin earth
+            docker compose pull
+            docker compose --env-file .env down
+            docker compose --env-file .env up -d --build
+            docker system prune -f --volumes
+            rm -f .env
+          '
 
       - name: Cleanup
         if: always()
