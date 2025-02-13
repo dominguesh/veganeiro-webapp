@@ -13,20 +13,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'yarn'
-
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
-
-      - name: Build application
-        run: yarn build
-        env:
-          NEXT_TELEMETRY_DISABLED: 1
-
       - name: Setup SSH
         run: |
           if [ -z "${{ secrets.PRODUCTION_SSH_KEY }}" ]; then
@@ -51,12 +37,16 @@ jobs:
           SSH_HOST: ${{ secrets.PRODUCTION_HOST }}
           SSH_USER: ${{ secrets.PRODUCTION_USERNAME }}
         run: |
+          # Copy env file and deploy script
+          scp -i ~/.ssh/deploy_key .env.production ${SSH_USER}@${SSH_HOST}:/var/www/veganeiro/.env
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new ${SSH_USER}@${SSH_HOST} '
             cd /var/www/veganeiro
             git pull origin earth
-            docker-compose -f docker-compose.yml down
-            docker-compose -f docker-compose.yml up -d --build
-            docker system prune -f
+            docker compose pull
+            docker compose --env-file .env down
+            docker compose --env-file .env up -d --build
+            docker system prune -f --volumes
+            rm -f .env
           '
 
       - name: Cleanup
