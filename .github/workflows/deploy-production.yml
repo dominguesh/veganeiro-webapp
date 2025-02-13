@@ -37,7 +37,7 @@ jobs:
           SSH_HOST: ${{ secrets.PRODUCTION_HOST }}
           SSH_USER: ${{ secrets.PRODUCTION_USERNAME }}
         run: |
-          # Copy env file and deploy script
+          # Copy env file
           scp -i ~/.ssh/deploy_key .env.production ${SSH_USER}@${SSH_HOST}:/var/www/veganeiro/.env
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new ${SSH_USER}@${SSH_HOST} '
             cd /var/www/veganeiro
