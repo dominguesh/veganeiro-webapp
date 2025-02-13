@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import { PrismaClient } from '@prisma/client';
 import dotenv from 'dotenv';
@@ -13,17 +13,17 @@ app.use(cors());
 app.use(express.json());
 
 // Health check endpoint
-app.get('/health', (req, res) => {
+app.get('/health', (_req: Request, res: Response) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
 // Basic error handler
-app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error(err.stack);
   res.status(500).json({ error: 'Something went wrong!' });
 });
 
-const start = async () => {
+const start = async (): Promise<void> => {
   try {
     await prisma.$connect();
     console.log('Connected to database');
@@ -37,4 +37,7 @@ const start = async () => {
   }
 };
 
-start();
+start().catch((error) => {
+  console.error('Unhandled error:', error);
+  process.exit(1);
+});
