@@ -41,14 +41,12 @@ jobs:
           SSH_HOST: ${{ secrets.STAGING_HOST }}
           SSH_USER: ${{ secrets.STAGING_USERNAME }}
         run: |
-          # Copy env file and deploy script
-          scp -i ~/.ssh/deploy_key .env.staging ${SSH_USER}@${SSH_HOST}:/var/www/veganeiro-staging/.env
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new ${SSH_USER}@${SSH_HOST} '
+          # Deploy files and restart containers
+          rsync -avz --exclude 'node_modules' --exclude '.git' -e "ssh -i ~/.ssh/deploy_key" ./ ${SSH_USER}@${SSH_HOST}:/var/www/veganeiro-staging/
+          
+          ssh -i ~/.ssh/deploy_key ${SSH_USER}@${SSH_HOST} '
             cd /var/www/veganeiro-staging
-            git pull origin moon
-            docker compose pull
-            docker compose --env-file .env down
-            docker compose --env-file .env up -d --build
-            docker system prune -f --volumes
-            rm -f .env
+            docker compose -f docker-compose.staging.yml down
+            docker compose -f docker-compose.staging.yml up -d --build
+            docker system prune -f
           '
