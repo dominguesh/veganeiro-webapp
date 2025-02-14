@@ -13,6 +13,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up SSL certificates
+        run: |
+          mkdir -p nginx/ssl/cloudflare
+          echo "${{ secrets.PRODUCTION_SSL_CERT }}" > nginx/ssl/cloudflare/cert.pem
+          echo "${{ secrets.PRODUCTION_SSL_KEY }}" > nginx/ssl/cloudflare/key.pem
+          chmod 600 nginx/ssl/cloudflare/*.pem
+
       - name: Setup SSH
         run: |
           if [ -z "${{ secrets.PRODUCTION_SSH_KEY }}" ]; then
@@ -49,4 +56,6 @@ jobs:
 
       - name: Cleanup
         if: always()
-        run: rm -f ~/.ssh/deploy_key
+        run: |
+          rm -f ~/.ssh/deploy_key
+          rm -rf nginx/ssl/cloudflare/*.pem
