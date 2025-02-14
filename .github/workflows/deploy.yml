@@ -1,33 +1,92 @@
-name: Deploy to Oracle Cloud
+name: Deploy
 
 on:
   push:
-    branches:
+    branches: 
       - main
+      - staging
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
+    
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+    - uses: actions/checkout@v3
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        
+    - name: Install Dependencies
+      run: |
+        cd frontend
+        npm install
+        cd ../backend
+        npm install
+        
+    - name: Build Frontend
+      run: |
+        cd frontend
+        npm run build
+        
+    - name: Build Backend
+      run: |
+        cd backend
+        npm run build
+        
+    - name: Deploy to Staging
+      if: github.ref == 'refs/heads/staging' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'staging')
+      env:
+        SSH_KEY: ${{ secrets.STAGING_SSH_KEY }}
+        HOST: ${{ secrets.STAGING_HOST }}
+        USERNAME: ${{ secrets.STAGING_USERNAME }}
+      run: |
+        echo "$SSH_KEY" > deploy_key
+        chmod 600 deploy_key
+        
+        # Create the .ssh directory and add known_hosts
+        mkdir -p ~/.ssh
+        ssh-keyscan -H $HOST >> ~/.ssh/known_hosts
+        
+        # Copy frontend build
+        scp -i deploy_key -r frontend/.next/* $USERNAME@$HOST:/var/www/html/frontend/
+        
+        # Copy backend build
+        scp -i deploy_key -r backend/dist/* $USERNAME@$HOST:/var/www/html/backend/
+        
+        # Clean up
+        rm -f deploy_key
 
-      - name: Set up SSH key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H <your-instance-public-ip> >> ~/.ssh/known_hosts
-
-      - name: Deploy to Oracle Cloud
-        run: |
-          ssh -i ~/.ssh/id_rsa ubuntu@144.24.0.6 << 'EOF'
-            cd ~/veganeiro-webapp || git clone https://github.com/dominguesh/veganeiro-webapp.git
-            cd ~/veganeiro-webapp
-            git pull origin main
-            docker build -t veganeiro-webapp .
-            docker stop veganeiro-webapp || true
-            docker rm veganeiro-webapp || true
-            docker run -d -p 80:3000 --name veganeiro-webapp veganeiro-webapp
-          EOF
+    - name: Deploy to Production
+      if: github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
+      env:
+        SSH_KEY: ${{ secrets.PRODUCTION_SSH_KEY }}
+        HOST: ${{ secrets.PRODUCTION_HOST }}
+        USERNAME: ${{ secrets.PRODUCTION_USERNAME }}
+      run: |
+        echo "$SSH_KEY" > deploy_key
+        chmod 600 deploy_key
+        
+        # Create the .ssh directory and add known_hosts
+        mkdir -p ~/.ssh
+        ssh-keyscan -H $HOST >> ~/.ssh/known_hosts
+        
+        # Copy frontend build
+        scp -i deploy_key -r frontend/.next/* $USERNAME@$HOST:/var/www/html/frontend/
+        
+        # Copy backend build
+        scp -i deploy_key -r backend/dist/* $USERNAME@$HOST:/var/www/html/backend/
+        
+        # Clean up
+        rm -f deploy_key
