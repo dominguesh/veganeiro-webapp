@@ -13,6 +13,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up SSL certificates
+        run: |
+          mkdir -p nginx/ssl/cloudflare
+          echo "${{ secrets.PRODUCTION_SSL_CERT }}" > nginx/ssl/cloudflare/cert.pem
+          echo "${{ secrets.PRODUCTION_SSL_KEY }}" > nginx/ssl/cloudflare/key.pem
+          chmod 600 nginx/ssl/cloudflare/*.pem
+
       - name: Setup SSH
         run: |
           if [ -z "${{ secrets.PRODUCTION_SSH_KEY }}" ]; then
@@ -37,18 +44,18 @@ jobs:
           SSH_HOST: ${{ secrets.PRODUCTION_HOST }}
           SSH_USER: ${{ secrets.PRODUCTION_USERNAME }}
         run: |
-          # Copy env file
-          scp -i ~/.ssh/deploy_key .env.production ${SSH_USER}@${SSH_HOST}:/var/www/veganeiro/.env
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new ${SSH_USER}@${SSH_HOST} '
+          # Deploy files and restart containers
+          rsync -avz --exclude 'node_modules' --exclude '.git' -e "ssh -i ~/.ssh/deploy_key" ./ ${SSH_USER}@${SSH_HOST}:/var/www/veganeiro/
+          
+          ssh -i ~/.ssh/deploy_key ${SSH_USER}@${SSH_HOST} '
             cd /var/www/veganeiro
-            git pull origin earth
-            docker compose pull
-            docker compose --env-file .env down
-            docker compose --env-file .env up -d --build
-            docker system prune -f --volumes
-            rm -f .env
+            docker compose -f docker-compose.production.yml down
+            docker compose -f docker-compose.production.yml up -d --build
+            docker system prune -f
           '
 
       - name: Cleanup
         if: always()
-        run: rm -f ~/.ssh/deploy_key
+        run: |
+          rm -f ~/.ssh/deploy_key
+          rm -rf nginx/ssl/cloudflare/*.pem
