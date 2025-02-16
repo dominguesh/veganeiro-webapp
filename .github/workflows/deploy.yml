@@ -77,12 +77,24 @@ jobs:
         mkdir -p ~/.ssh
         ssh-keyscan -H $HOST >> ~/.ssh/known_hosts
         
-        # Deploy and restart containers
+        # Create directory if it doesn't exist and deploy
         ssh -i deploy_key $USERNAME@$HOST << 'EOF'
+          # Create or navigate to project directory
+          mkdir -p ~/veganeiro-webapp
           cd ~/veganeiro-webapp
-          docker-compose -f docker-compose.staging.yml down
-          docker-compose -f docker-compose.staging.yml pull
-          docker-compose -f docker-compose.staging.yml up -d
+
+          # Copy docker-compose file
+          cat > docker-compose.staging.yml << 'DOCKER'
+          $(cat docker-compose.staging.yml)
+          DOCKER
+
+          # Deploy application
+          docker compose -f docker-compose.staging.yml down || true
+          docker compose -f docker-compose.staging.yml pull
+          docker compose -f docker-compose.staging.yml up -d --build
+
+          # Cleanup
+          docker system prune -f
         EOF
         
         rm -f deploy_key
@@ -100,12 +112,24 @@ jobs:
         mkdir -p ~/.ssh
         ssh-keyscan -H $HOST >> ~/.ssh/known_hosts
         
-        # Deploy and restart containers
+        # Create directory if it doesn't exist and deploy
         ssh -i deploy_key $USERNAME@$HOST << 'EOF'
+          # Create or navigate to project directory
+          mkdir -p ~/veganeiro-webapp
           cd ~/veganeiro-webapp
-          docker-compose -f docker-compose.production.yml down
-          docker-compose -f docker-compose.production.yml pull
-          docker-compose -f docker-compose.production.yml up -d
+
+          # Copy docker-compose file
+          cat > docker-compose.production.yml << 'DOCKER'
+          $(cat docker-compose.production.yml)
+          DOCKER
+
+          # Deploy application
+          docker compose -f docker-compose.production.yml down || true
+          docker compose -f docker-compose.production.yml pull
+          docker compose -f docker-compose.production.yml up -d --build
+
+          # Cleanup
+          docker system prune -f
         EOF
         
         rm -f deploy_key
