@@ -6,8 +6,9 @@
   "scripts": {
     "start": "ts-node src/index.ts",
     "dev": "nodemon src/index.ts",
-    "build": "tsc",
-    "test": "jest"
+    "build": "prisma generate && tsc",
+    "test": "jest",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@prisma/client": "^5.8.0",

@@ -55,6 +55,13 @@ jobs:
     - name: Build Backend
       run: |
         cd backend
+        # Ensure Prisma schema is available
+        if [[ "${{ github.ref }}" == "refs/heads/main" || "${{ github.event.inputs.environment }}" == "production" ]]; then
+          cp .env.production .env
+        else
+          cp .env.staging .env
+        fi
+        # Generate Prisma client and build
         npm run build
         
     - name: Deploy to Staging
