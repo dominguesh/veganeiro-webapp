@@ -2,18 +2,44 @@
 
 ## Core Branches
 
-- `main`: Development branch where all feature branches are merged
-- `moon` 🌕: Staging environment branch
-- `earth` 🌍: Production environment branch
+Our repository follows a simplified three-tier branch strategy:
+
+1. `main` 🔧
+   - Primary development branch
+   - Single source of truth for development
+   - All feature branches merge here
+   - Integration point for all new code
+
+2. `moon` 🌕
+   - Staging environment branch
+   - Pre-production testing
+   - Quality assurance and validation
+   - Mirror of what will go to production
+
+3. `earth` 🌍
+   - Production environment branch
+   - Represents live application code
+   - Highly stable and tested
+   - Deployed to production servers
 
 ## Branch Workflow
 
-1. All new features and fixes should branch off from `main`
-2. Feature branches should follow the naming convention: `feature/feature-name`
-3. Bug fix branches should follow the naming convention: `fix/bug-name`
-4. Pull requests are made to merge features back into `main`
-5. Staging deployments are triggered by merges to `moon`
-6. Production deployments are triggered by merges to `earth`
+1. Feature Development:
+   - Create feature branch from `main`: `feature/feature-name`
+   - Develop and test locally
+   - Create pull request to `main`
+   - Delete feature branch after merge
+
+2. Staging Process:
+   - Merge `main` into `moon`
+   - Automated deployment to staging
+   - Testing and validation
+   - Fix any issues in `main`
+
+3. Production Deployment:
+   - Merge `moon` into `earth`
+   - Automated deployment to production
+   - Monitor for any issues
 
 ## Deployment Process
 
@@ -53,9 +79,24 @@ To manually trigger branch cleanup:
 
 ## Protected Branches
 
-The following branches are protected and require pull request reviews:
-- `main`
-- `moon`
-- `earth`
+All three core branches are protected:
+
+1. `main`
+   - Requires pull request review
+   - No direct pushes
+   - Must pass CI checks
+   - Keeps development organized
+
+2. `moon`
+   - Requires pull request review
+   - Only accepts merges from `main`
+   - Must pass staging deployment
+   - Ensures staging stability
+
+3. `earth`
+   - Requires pull request review
+   - Only accepts merges from `moon`
+   - Must pass production deployment
+   - Maintains production reliability
 
 Direct pushes to these branches are prohibited to maintain code quality and stability.
