@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/ssl:/etc/nginx/ssl
+      - ./nginx/certbot/conf:/etc/letsencrypt
+      - ./nginx/certbot/www:/var/www/certbot
+    depends_on:
+      - frontend
+      - backend
+    restart: unless-stopped
+    networks:
+      - veganeiro-staging-network
+
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - ./nginx/certbot/conf:/etc/letsencrypt
+      - ./nginx/certbot/www:/var/www/certbot
+    depends_on:
+      - nginx
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - NODE_ENV=staging
+    expose:
+      - "3000"
+    environment:
+      - NODE_ENV=staging
+      - NEXT_PUBLIC_API_URL=http://backend:5000
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - veganeiro-staging-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        - NODE_ENV=staging
+    expose:
+      - "5000"
+    environment:
+      - NODE_ENV=staging
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - db
+    restart: unless-stopped
+    networks:
+      - veganeiro-staging-network
+
+  db:
+    image: postgres:15-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - postgres_staging_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - veganeiro-staging-network
+
+volumes:
+  postgres_staging_data:
+
+networks:
+  veganeiro-staging-network:
+    driver: bridge
