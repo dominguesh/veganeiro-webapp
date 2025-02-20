@@ -25,9 +25,9 @@ export default function Footer({ className = '' }: FooterProps) {
       { name: t('footer.guides'), href: '/guides' },
     ],
     legal: [
-      { name: t('footer.privacy'), href: '/privacy' },
+      { name: t('footer.privacy'), href: '/privacy-policy' },
       { name: t('footer.terms'), href: '/terms' },
-      { name: t('footer.cookies'), href: '/cookies' },
+      { name: t('footer.cookies'), href: '/cookie-policy' },
     ],
   }
 
