@@ -27,6 +27,20 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: |
+          frontend/package-lock.json
+          backend/package-lock.json
+        
+    - name: Cache Next.js build
+      uses: actions/cache@v3
+      with:
+        path: |
+          frontend/.next/cache
+        key: ${{ runner.os }}-nextjs-${{ hashFiles('frontend/package-lock.json') }}-${{ hashFiles('frontend/**.[jt]s', 'frontend/**.[jt]sx') }}
+        restore-keys: |
+          ${{ runner.os }}-nextjs-${{ hashFiles('frontend/package-lock.json') }}-
+          ${{ runner.os }}-nextjs-
         
     - name: Create Environment Files
       run: |
@@ -42,9 +56,16 @@ jobs:
         
     - name: Install Dependencies
       run: |
+        # Frontend dependencies
         cd frontend
+        npm cache clean --force
+        rm -rf node_modules package-lock.json
         npm install
+        
+        # Backend dependencies
         cd ../backend
+        npm cache clean --force
+        rm -rf node_modules package-lock.json
         npm install
         
     - name: Build Frontend
@@ -71,14 +92,31 @@ jobs:
         HOST: ${{ secrets.STAGING_HOST }}
         USERNAME: ${{ secrets.STAGING_USERNAME }}
       run: |
-        echo "$SSH_KEY" > deploy_key
-        chmod 600 deploy_key
+        # Debug: Show SSH directory
+        ls -la ~/.ssh || true
         
+        # Create and configure SSH key
         mkdir -p ~/.ssh
-        ssh-keyscan -H $HOST >> ~/.ssh/known_hosts
+        echo "$SSH_KEY" | base64 -d > ~/.ssh/deploy_key
+        chmod 600 ~/.ssh/deploy_key
         
-        # Deploy and restart containers
-        ssh -i deploy_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $USERNAME@$HOST << 'EOF'
+        # Debug: Show key file permissions
+        ls -la ~/.ssh/deploy_key
+        
+        # Configure SSH
+        cat > ~/.ssh/config << EOF
+        Host *
+            StrictHostKeyChecking no
+            UserKnownHostsFile=/dev/null
+            ServerAliveInterval 60
+            IdentityFile ~/.ssh/deploy_key
+        EOF
+        
+        # Debug: Test SSH connection with verbose output
+        ssh -v -i ~/.ssh/deploy_key $USERNAME@$HOST echo "SSH connection test"
+        
+        # If test succeeds, proceed with deployment
+        ssh -i ~/.ssh/deploy_key $USERNAME@$HOST << 'EOF'
           cd ~/veganeiro-webapp
           docker-compose -f docker-compose.staging.yml down
           docker-compose -f docker-compose.staging.yml pull
@@ -94,14 +132,31 @@ jobs:
         HOST: ${{ secrets.PRODUCTION_HOST }}
         USERNAME: ${{ secrets.PRODUCTION_USERNAME }}
       run: |
-        echo "$SSH_KEY" > deploy_key
-        chmod 600 deploy_key
+        # Debug: Show SSH directory
+        ls -la ~/.ssh || true
         
+        # Create and configure SSH key
         mkdir -p ~/.ssh
-        ssh-keyscan -H $HOST >> ~/.ssh/known_hosts
+        echo "$SSH_KEY" | base64 -d > ~/.ssh/deploy_key
+        chmod 600 ~/.ssh/deploy_key
         
-        # Deploy and restart containers
-        ssh -i deploy_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $USERNAME@$HOST << 'EOF'
+        # Debug: Show key file permissions
+        ls -la ~/.ssh/deploy_key
+        
+        # Configure SSH
+        cat > ~/.ssh/config << EOF
+        Host *
+            StrictHostKeyChecking no
+            UserKnownHostsFile=/dev/null
+            ServerAliveInterval 60
+            IdentityFile ~/.ssh/deploy_key
+        EOF
+        
+        # Debug: Test SSH connection with verbose output
+        ssh -v -i ~/.ssh/deploy_key $USERNAME@$HOST echo "SSH connection test"
+        
+        # If test succeeds, proceed with deployment
+        ssh -i ~/.ssh/deploy_key $USERNAME@$HOST << 'EOF'
           cd ~/veganeiro-webapp
           docker-compose -f docker-compose.production.yml down
           docker-compose -f docker-compose.production.yml pull
