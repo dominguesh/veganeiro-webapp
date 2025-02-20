@@ -78,7 +78,7 @@ jobs:
         ssh-keyscan -H $HOST >> ~/.ssh/known_hosts
         
         # Deploy and restart containers
-        ssh -i deploy_key $USERNAME@$HOST << 'EOF'
+        ssh -i deploy_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $USERNAME@$HOST << 'EOF'
           cd ~/veganeiro-webapp
           docker-compose -f docker-compose.staging.yml down
           docker-compose -f docker-compose.staging.yml pull
@@ -91,8 +91,8 @@ jobs:
       if: github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
       env:
         SSH_KEY: ${{ secrets.PRODUCTION_SSH_KEY }}
-        HOST: "173.230.153.244"
-        USERNAME: "veganeiro-dev"
+        HOST: ${{ secrets.PRODUCTION_HOST }}
+        USERNAME: ${{ secrets.PRODUCTION_USERNAME }}
       run: |
         echo "$SSH_KEY" > deploy_key
         chmod 600 deploy_key
@@ -101,7 +101,7 @@ jobs:
         ssh-keyscan -H $HOST >> ~/.ssh/known_hosts
         
         # Deploy and restart containers
-        ssh -i deploy_key $USERNAME@$HOST << 'EOF'
+        ssh -i deploy_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $USERNAME@$HOST << 'EOF'
           cd ~/veganeiro-webapp
           docker-compose -f docker-compose.production.yml down
           docker-compose -f docker-compose.production.yml pull
