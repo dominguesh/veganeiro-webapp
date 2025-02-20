@@ -92,10 +92,17 @@ jobs:
         HOST: ${{ secrets.STAGING_HOST }}
         USERNAME: ${{ secrets.STAGING_USERNAME }}
       run: |
-        echo "$SSH_KEY" > deploy_key
+        # Ensure SSH key is properly formatted with newlines
+        echo "$SSH_KEY" | tr -d '\r' > deploy_key
         chmod 600 deploy_key
         
+        # Set up SSH configuration
         mkdir -p ~/.ssh
+        echo "Host *
+          StrictHostKeyChecking no
+          UserKnownHostsFile=/dev/null
+          ServerAliveInterval 60" > ~/.ssh/config
+        
         ssh-keyscan -H $HOST >> ~/.ssh/known_hosts
         
         # Deploy and restart containers
@@ -115,10 +122,17 @@ jobs:
         HOST: ${{ secrets.PRODUCTION_HOST }}
         USERNAME: ${{ secrets.PRODUCTION_USERNAME }}
       run: |
-        echo "$SSH_KEY" > deploy_key
+        # Ensure SSH key is properly formatted with newlines
+        echo "$SSH_KEY" | tr -d '\r' > deploy_key
         chmod 600 deploy_key
         
+        # Set up SSH configuration
         mkdir -p ~/.ssh
+        echo "Host *
+          StrictHostKeyChecking no
+          UserKnownHostsFile=/dev/null
+          ServerAliveInterval 60" > ~/.ssh/config
+        
         ssh-keyscan -H $HOST >> ~/.ssh/known_hosts
         
         # Deploy and restart containers
