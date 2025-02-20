@@ -92,21 +92,31 @@ jobs:
         HOST: ${{ secrets.STAGING_HOST }}
         USERNAME: ${{ secrets.STAGING_USERNAME }}
       run: |
-        # Ensure SSH key is properly formatted with newlines
-        echo "$SSH_KEY" | tr -d '\r' > deploy_key
-        chmod 600 deploy_key
+        # Debug: Show SSH directory
+        ls -la ~/.ssh || true
         
-        # Set up SSH configuration
+        # Create and configure SSH key
         mkdir -p ~/.ssh
-        echo "Host *
-          StrictHostKeyChecking no
-          UserKnownHostsFile=/dev/null
-          ServerAliveInterval 60" > ~/.ssh/config
+        echo "$SSH_KEY" | base64 -d > ~/.ssh/deploy_key
+        chmod 600 ~/.ssh/deploy_key
         
-        ssh-keyscan -H $HOST >> ~/.ssh/known_hosts
+        # Debug: Show key file permissions
+        ls -la ~/.ssh/deploy_key
         
-        # Deploy and restart containers
-        ssh -i deploy_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $USERNAME@$HOST << 'EOF'
+        # Configure SSH
+        cat > ~/.ssh/config << EOF
+        Host *
+            StrictHostKeyChecking no
+            UserKnownHostsFile=/dev/null
+            ServerAliveInterval 60
+            IdentityFile ~/.ssh/deploy_key
+        EOF
+        
+        # Debug: Test SSH connection with verbose output
+        ssh -v -i ~/.ssh/deploy_key $USERNAME@$HOST echo "SSH connection test"
+        
+        # If test succeeds, proceed with deployment
+        ssh -i ~/.ssh/deploy_key $USERNAME@$HOST << 'EOF'
           cd ~/veganeiro-webapp
           docker-compose -f docker-compose.staging.yml down
           docker-compose -f docker-compose.staging.yml pull
@@ -122,21 +132,31 @@ jobs:
         HOST: ${{ secrets.PRODUCTION_HOST }}
         USERNAME: ${{ secrets.PRODUCTION_USERNAME }}
       run: |
-        # Ensure SSH key is properly formatted with newlines
-        echo "$SSH_KEY" | tr -d '\r' > deploy_key
-        chmod 600 deploy_key
+        # Debug: Show SSH directory
+        ls -la ~/.ssh || true
         
-        # Set up SSH configuration
+        # Create and configure SSH key
         mkdir -p ~/.ssh
-        echo "Host *
-          StrictHostKeyChecking no
-          UserKnownHostsFile=/dev/null
-          ServerAliveInterval 60" > ~/.ssh/config
+        echo "$SSH_KEY" | base64 -d > ~/.ssh/deploy_key
+        chmod 600 ~/.ssh/deploy_key
         
-        ssh-keyscan -H $HOST >> ~/.ssh/known_hosts
+        # Debug: Show key file permissions
+        ls -la ~/.ssh/deploy_key
         
-        # Deploy and restart containers
-        ssh -i deploy_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $USERNAME@$HOST << 'EOF'
+        # Configure SSH
+        cat > ~/.ssh/config << EOF
+        Host *
+            StrictHostKeyChecking no
+            UserKnownHostsFile=/dev/null
+            ServerAliveInterval 60
+            IdentityFile ~/.ssh/deploy_key
+        EOF
+        
+        # Debug: Test SSH connection with verbose output
+        ssh -v -i ~/.ssh/deploy_key $USERNAME@$HOST echo "SSH connection test"
+        
+        # If test succeeds, proceed with deployment
+        ssh -i ~/.ssh/deploy_key $USERNAME@$HOST << 'EOF'
           cd ~/veganeiro-webapp
           docker-compose -f docker-compose.production.yml down
           docker-compose -f docker-compose.production.yml pull
