@@ -38,3 +38,9 @@ Thumbs.db
 # Temporary files
 *.tmp
 temp_secrets.txt
+
+# Environment files
+.env
+.env.development
+.env.local
+.env.test
