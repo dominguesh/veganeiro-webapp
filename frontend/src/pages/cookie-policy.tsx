@@ -1,10 +1,8 @@
 import React from 'react';
-import Layout from '../components/layout/Layout';
 
 const CookiePolicy = () => {
   return (
-    <Layout>
-      <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="max-w-4xl mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-8">Cookie Policy</h1>
         <div className="prose prose-lg">
           <p className="text-gray-600 mb-4">Effective Date: 01/20/2025</p>
@@ -85,7 +83,6 @@ const CookiePolicy = () => {
           <p className="mb-6">Email: contact@veganeiro.com</p>
         </div>
       </div>
-    </Layout>
   );
 };
 

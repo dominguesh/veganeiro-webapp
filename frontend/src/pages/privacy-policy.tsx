@@ -1,10 +1,8 @@
 import React from 'react';
-import Layout from '../components/layout/Layout';
 
 const PrivacyPolicy = () => {
   return (
-    <Layout>
-      <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="max-w-4xl mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-8">Privacy Policy</h1>
         <div className="prose prose-lg">
           <p className="text-gray-600 mb-4">Last Revised: October 2, 2024</p>
@@ -42,7 +40,6 @@ const PrivacyPolicy = () => {
           <p className="mb-6">Email: privacy@veganeiro.com</p>
         </div>
       </div>
-    </Layout>
   );
 };
 
