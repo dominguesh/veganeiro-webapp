@@ -27,6 +27,20 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: |
+          frontend/package-lock.json
+          backend/package-lock.json
+        
+    - name: Cache Next.js build
+      uses: actions/cache@v3
+      with:
+        path: |
+          frontend/.next/cache
+        key: ${{ runner.os }}-nextjs-${{ hashFiles('frontend/package-lock.json') }}-${{ hashFiles('frontend/**.[jt]s', 'frontend/**.[jt]sx') }}
+        restore-keys: |
+          ${{ runner.os }}-nextjs-${{ hashFiles('frontend/package-lock.json') }}-
+          ${{ runner.os }}-nextjs-
         
     - name: Create Environment Files
       run: |
@@ -42,9 +56,16 @@ jobs:
         
     - name: Install Dependencies
       run: |
+        # Frontend dependencies
         cd frontend
+        npm cache clean --force
+        rm -rf node_modules package-lock.json
         npm install
+        
+        # Backend dependencies
         cd ../backend
+        npm cache clean --force
+        rm -rf node_modules package-lock.json
         npm install
         
     - name: Build Frontend
