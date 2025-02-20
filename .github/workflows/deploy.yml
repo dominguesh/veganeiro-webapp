@@ -28,6 +28,18 @@ jobs:
       with:
         node-version: '18'
         
+    - name: Create Environment Files
+      run: |
+        if [[ "${{ github.ref }}" == "refs/heads/main" || "${{ github.event.inputs.environment }}" == "production" ]]; then
+          echo "${{ secrets.PROD_ENV }}" > .env.production
+          echo "${{ secrets.PROD_ENV_FRONTEND }}" > frontend/.env.production
+          echo "${{ secrets.PROD_ENV_BACKEND }}" > backend/.env.production
+        else
+          echo "${{ secrets.STAGING_ENV }}" > .env.staging
+          echo "${{ secrets.STAGING_ENV_FRONTEND }}" > frontend/.env.staging
+          echo "${{ secrets.STAGING_ENV_BACKEND }}" > backend/.env.staging
+        fi
+        
     - name: Install Dependencies
       run: |
         cd frontend
@@ -55,17 +67,17 @@ jobs:
         echo "$SSH_KEY" > deploy_key
         chmod 600 deploy_key
         
-        # Create the .ssh directory and add known_hosts
         mkdir -p ~/.ssh
         ssh-keyscan -H $HOST >> ~/.ssh/known_hosts
         
-        # Copy frontend build
-        scp -i deploy_key -r frontend/.next/* $USERNAME@$HOST:/var/www/html/frontend/
+        # Deploy and restart containers
+        ssh -i deploy_key $USERNAME@$HOST << 'EOF'
+          cd ~/veganeiro-webapp
+          docker-compose -f docker-compose.staging.yml down
+          docker-compose -f docker-compose.staging.yml pull
+          docker-compose -f docker-compose.staging.yml up -d
+        EOF
         
-        # Copy backend build
-        scp -i deploy_key -r backend/dist/* $USERNAME@$HOST:/var/www/html/backend/
-        
-        # Clean up
         rm -f deploy_key
 
     - name: Deploy to Production
@@ -78,15 +90,15 @@ jobs:
         echo "$SSH_KEY" > deploy_key
         chmod 600 deploy_key
         
-        # Create the .ssh directory and add known_hosts
         mkdir -p ~/.ssh
         ssh-keyscan -H $HOST >> ~/.ssh/known_hosts
         
-        # Copy frontend build
-        scp -i deploy_key -r frontend/.next/* $USERNAME@$HOST:/var/www/html/frontend/
+        # Deploy and restart containers
+        ssh -i deploy_key $USERNAME@$HOST << 'EOF'
+          cd ~/veganeiro-webapp
+          docker-compose -f docker-compose.production.yml down
+          docker-compose -f docker-compose.production.yml pull
+          docker-compose -f docker-compose.production.yml up -d
+        EOF
         
-        # Copy backend build
-        scp -i deploy_key -r backend/dist/* $USERNAME@$HOST:/var/www/html/backend/
-        
-        # Clean up
         rm -f deploy_key
