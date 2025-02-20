@@ -15,17 +15,21 @@ export default function LoginForm() {
     e.preventDefault()
     setErrors([])
     
-    const email = (e.target as HTMLFormElement).email.value
-    const password = (e.target as HTMLFormElement).password.value
+    const form = e.target as HTMLFormElement
+    const email = form.elements.namedItem('email') as HTMLInputElement
+    const password = form.elements.namedItem('password') as HTMLInputElement
+    
+    const emailValue = email.value
+    const passwordValue = password.value
     
     // Validate email
-    if (!validateEmail(email)) {
+    if (!validateEmail(emailValue)) {
       setErrors(prev => [...prev, 'Please enter a valid email address'])
       return
     }
     
     // Validate password is not empty
-    if (!password) {
+    if (!passwordValue) {
       setErrors(prev => [...prev, 'Please enter your password'])
       return
     }
@@ -33,8 +37,8 @@ export default function LoginForm() {
     setIsLoading(true)
     try {
       const response = await login({
-        email,
-        password,
+        email: emailValue,
+        password: passwordValue,
       });
       if (response) {
         router.push('/landing'); // Redirect to landing page on success

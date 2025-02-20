@@ -15,17 +15,29 @@ export default function SignupForm() {
     e.preventDefault()
     setErrors([])
     
-    const email = (e.target as HTMLFormElement).email.value
-    const password = (e.target as HTMLFormElement).password.value
+    const form = e.target as HTMLFormElement
+    const name = form.elements.namedItem('name') as HTMLInputElement
+    const email = form.elements.namedItem('email') as HTMLInputElement
+    const password = form.elements.namedItem('password') as HTMLInputElement
     
+    const nameValue = name.value
+    const emailValue = email.value
+    const passwordValue = password.value
+    
+    // Validate name
+    if (!nameValue.trim()) {
+      setErrors(prev => [...prev, 'Please enter your name'])
+      return
+    }
+
     // Validate email
-    if (!validateEmail(email)) {
+    if (!validateEmail(emailValue)) {
       setErrors(prev => [...prev, 'Please enter a valid email address'])
       return
     }
     
     // Validate password
-    const passwordValidation = validatePassword(password)
+    const passwordValidation = validatePassword(passwordValue)
     if (!passwordValidation.isValid) {
       setErrors(prev => [...prev, ...passwordValidation.errors])
       return
@@ -34,8 +46,9 @@ export default function SignupForm() {
     setIsLoading(true)
     try {
       const response = await signup({
-        email,
-        password,
+        name: nameValue,
+        email: emailValue,
+        password: passwordValue,
       });
       if (response) {
         router.push('/auth/login'); // Redirect to login page on success
