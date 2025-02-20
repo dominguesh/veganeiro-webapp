@@ -6,7 +6,7 @@
   "scripts": {
     "start": "ts-node src/index.ts",
     "dev": "nodemon src/index.ts",
-    "build": "prisma generate && tsc",
+    "build": "prisma generate && npx tsc",
     "test": "jest",
     "postinstall": "prisma generate"
   },

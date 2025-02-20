@@ -1,9 +1,9 @@
 FROM node:18-alpine
 WORKDIR /app
 COPY package*.json ./
-RUN npm install
-COPY . .
+ARG NODE_ENV=development
+ENV NODE_ENV=${NODE_ENV}
 ENV NEXT_TELEMETRY_DISABLED=1
-RUN npm run build
+RUN npm install
 EXPOSE 3000
-CMD ["npm", "start"]
+CMD ["npm", "run", "dev"]

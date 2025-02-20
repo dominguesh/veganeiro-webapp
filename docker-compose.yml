@@ -16,7 +16,7 @@ services:
       - backend
     restart: unless-stopped
     networks:
-      - veganeiro-network
+      - veganeiro-prod-network
 
   certbot:
     image: certbot/certbot
@@ -30,6 +30,8 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        - NODE_ENV=production
     expose:
       - "3000"
     environment:
@@ -39,12 +41,14 @@ services:
       - backend
     restart: unless-stopped
     networks:
-      - veganeiro-network
+      - veganeiro-prod-network
 
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
+      args:
+        - NODE_ENV=production
     expose:
       - "5000"
     environment:
@@ -55,7 +59,7 @@ services:
       - db
     restart: unless-stopped
     networks:
-      - veganeiro-network
+      - veganeiro-prod-network
 
   db:
     image: postgres:15-alpine
@@ -66,14 +70,14 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_prod_data:/var/lib/postgresql/data
     restart: unless-stopped
     networks:
-      - veganeiro-network
+      - veganeiro-prod-network
 
 volumes:
-  postgres_data:
+  postgres_prod_data:
 
 networks:
-  veganeiro-network:
+  veganeiro-prod-network:
     driver: bridge
