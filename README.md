@@ -19,6 +19,7 @@ Veganeiro is a comprehensive vegan lifestyle platform providing tools, resources
   - PostCSS updated to v8.4.35
 - Implemented core pages with improved accessibility
 - Added responsive navigation and proper ARIA attributes
+- Added secure HTTPS support with Cloudflare SSL
 
 [View detailed changelog](CHANGELOG.md)
 
@@ -42,6 +43,7 @@ Veganeiro is a comprehensive vegan lifestyle platform providing tools, resources
 - Node.js (v16 or higher)
 - Yarn package manager
 - Git
+- Docker and Docker Compose
 
 ## 🚀 Getting Started
 
@@ -68,6 +70,36 @@ yarn dev
 
 Visit `http://localhost:3000` to see the application.
 
+## 🌐 Deployment
+
+The project uses GitHub Actions for automated deployments to staging and production environments. Each environment requires specific secrets to be set in the GitHub repository settings.
+
+### Required Secrets
+
+#### Staging Environment (Moon 🌕)
+- `STAGING_HOST`: Staging server hostname
+- `STAGING_USERNAME`: SSH username for staging server
+- `STAGING_SSH_KEY`: SSH private key for staging server access
+- `STAGING_SSL_CERT`: Cloudflare SSL certificate for staging
+- `STAGING_SSL_KEY`: Cloudflare SSL private key for staging
+
+#### Production Environment (Earth 🌍)
+- `PRODUCTION_HOST`: Production server hostname
+- `PRODUCTION_USERNAME`: SSH username for production server
+- `PRODUCTION_SSH_KEY`: SSH private key for production server access
+- `PRODUCTION_SSL_CERT`: Cloudflare SSL certificate for production
+- `PRODUCTION_SSL_KEY`: Cloudflare SSL private key for production
+
+### Deployment Process
+1. Changes pushed to the `moon` branch trigger staging deployment
+2. After testing in staging, merge to `earth` branch for production deployment
+3. SSL certificates are securely handled via GitHub secrets
+
+### SSL Certificate Setup
+1. Obtain SSL certificate and private key from Cloudflare
+2. Add them as secrets in GitHub repository settings
+3. Never commit SSL certificates or private keys to the repository
+
 ## 🏗️ Project Structure
 
 ```
@@ -92,6 +124,7 @@ veganeiro/
 - Dark mode support
 - Bilingual support (PT/EN)
 - Accessibility improvements
+- HTTPS with Cloudflare SSL
 
 ### Coming Soon 🚧
 - User authentication flow
@@ -150,6 +183,4 @@ Project Link: [https://github.com/dominguesh/veganeiro](https://github.com/domin
 
 ---
 
-<p align="center">Made with 💚 for the vegan community</p># Test deployment
-# Production test
-# Test production deployment Wed Feb 12 19:34:10 MST 2025
+<p align="center">Made with 💚 for the vegan community</p>

@@ -1,30 +1,14 @@
-# Use Node.js LTS
 FROM node:18-alpine
-
-# Install necessary build tools for Prisma and OpenSSL
-RUN apk add --no-cache python3 make g++ openssl
-
-# Set working directory
+RUN apk add --no-cache python3 make g++ openssl postgresql-client
 WORKDIR /app
-
-# Install dependencies first (caching)
 COPY package*.json tsconfig.json ./
 RUN npm install
-
-# Copy Prisma schema
 COPY prisma ./prisma/
-
-# Generate Prisma client
-RUN npx prisma generate
-
-# Copy source code
 COPY src ./src/
-
-# Build TypeScript
 RUN npm run build
-
-# Expose port
-EXPOSE 5000
-
-# Start the application
-CMD ["npm", "start"]
+ENV NODE_ENV=production
+ENV DATABASE_URL=postgresql://veganeiro_prod:veganeiro123@db:5432/veganeiro_prod
+RUN npx prisma generate
+CMD until pg_isready -h db -U veganeiro_prod -d veganeiro_prod; do sleep 1; done; \
+    npx prisma migrate deploy && \
+    npm start
